@@ -74,8 +74,8 @@ public class EyeTrackingVarjoCollectingData : MonoBehaviour
             }
         }
 
-        var leftEye = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.AddEyeRecord(leftEyeOpened, LeftEyeTransform, mainCamera);
-        var rightEye = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.AddEyeRecord(rightEyeOpened, RightEyeTransform, mainCamera);
+        var leftEye = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.AddEyeRecord(leftEyeOpened, LeftEyeTransform);
+        var rightEye = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.AddEyeRecord(rightEyeOpened, RightEyeTransform);
 
         long timeStamp = (long)((Time.timeAsDouble - EyeTrackingConfig.Instance.SessionStartTime));
 

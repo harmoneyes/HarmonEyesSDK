@@ -32,6 +32,10 @@ public class AnalyzeEyeTrackingData : MonoBehaviour
     private void AnalyzeEyeTracking(double testDuration)
     {
         EyeTrackingConfig.Instance.EyeTrackingData.TotalDuration = testDuration;
+        if (EyeTrackingConfig.Instance.EyeTrackingData.Samples.GetSamples().Count > 0)
+        {
+            currCogLoad = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.GetCurrentCogLoad(EyeTrackingConfig.Instance.EyeTrackingData);
+            currFatigue = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.GetCurrentFatigue(EyeTrackingConfig.Instance.EyeTrackingData);
 
         currCogLoad = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.GetCurrentCogLoad(EyeTrackingConfig.Instance.EyeTrackingData);
         currFatigue = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.GetCurrentFatigue(EyeTrackingConfig.Instance.EyeTrackingData);
@@ -42,8 +46,9 @@ public class AnalyzeEyeTrackingData : MonoBehaviour
         //Used for displaying input & response info
         StartCoroutine(DisplayEyeTrackingResponse());
 
-        // Clear Eye Tracking Data
-        EyeTrackingConfig.Instance.EyeTrackingData.ClearData();
+            // Clear Eye Tracking Data
+            EyeTrackingConfig.Instance.EyeTrackingData.ClearData();
+        }
     }
 
     IEnumerator DisplayEyeTrackingResponse()

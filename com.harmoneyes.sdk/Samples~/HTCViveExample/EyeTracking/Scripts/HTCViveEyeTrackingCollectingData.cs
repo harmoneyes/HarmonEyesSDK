@@ -32,12 +32,9 @@ public class HTCViveEyeTrackingCollectingData : MonoBehaviour
         EyeManager.Instance.GetLeftEyeOpenness(out eyeOpenLeft);
         EyeManager.Instance.GetRightEyeOpenness(out eyeOpenRight);
 
-        var leftEye = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.AddEyeRecord(eyeOpenLeft, leftEyePos, leftEyeDir, leftPupilDiameter, mainCamera);
-        var rightEye = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.AddEyeRecord(eyeOpenRight, rightEyePos, rightEyeDir, rightPupilDiameter, mainCamera);
-
         long timeStamp = (long)((Time.timeAsDouble - EyeTrackingConfig.Instance.SessionStartTime));
 
-        var eyeSample = new Sample(timeStamp, leftEye, rightEye);
+        var eyeSample = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.CreateSample(timeStamp, leftEyePos, leftEyeDir, eyeOpenLeft, leftPupilDiameter, rightEyePos, rightEyeDir, eyeOpenRight, rightPupilDiameter, mainCamera);
 
         EyeTrackingConfig.Instance.EyeTrackingData.Samples.AddSample(eyeSample);
     }

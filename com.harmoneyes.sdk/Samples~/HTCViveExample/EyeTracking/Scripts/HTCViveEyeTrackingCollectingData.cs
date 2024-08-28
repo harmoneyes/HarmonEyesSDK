@@ -1,4 +1,3 @@
-using HarmonEyesSDK.DataModels.EyeTrackerDataModels;
 using UnityEngine;
 using Wave.Essence.Eye;
 
@@ -20,6 +19,9 @@ public class HTCViveEyeTrackingCollectingData : MonoBehaviour
     private float eyeOpenRight;
     void Update()
     {
+        if (EyeManager.Instance != null) { EyeManager.Instance.EnableEyeTracking = true; }
+
+        Debug.Log($"Eye Tracking status: {EyeManager.Instance.GetEyeTrackingStatus()}");
         EyeManager.Instance.GetLeftEyeOrigin(out leftEyePos);
         EyeManager.Instance.GetRightEyeOrigin(out rightEyePos);
 
@@ -32,9 +34,16 @@ public class HTCViveEyeTrackingCollectingData : MonoBehaviour
         EyeManager.Instance.GetLeftEyeOpenness(out eyeOpenLeft);
         EyeManager.Instance.GetRightEyeOpenness(out eyeOpenRight);
 
-        long timeStamp = (long)((Time.timeAsDouble - EyeTrackingConfig.Instance.SessionStartTime));
+        EyeTrackingConfig.Instance.SessionTime += Time.deltaTime;
+        double timeStamp = EyeTrackingConfig.Instance.SessionTime;
 
         var eyeSample = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.CreateSample(timeStamp, leftEyePos, leftEyeDir, eyeOpenLeft, leftPupilDiameter, rightEyePos, rightEyeDir, eyeOpenRight, rightPupilDiameter, mainCamera);
+
+        //Debug.Log($"[HarmonEyes SDK] Left Eye Origin: {eyeSample.LeftEye.EyeOrigin.X}, {eyeSample.LeftEye.EyeOrigin.Y}, {eyeSample.LeftEye.EyeOrigin.Z}");
+        //Debug.Log($"[HarmonEyes SDK] Left Eye Direction: {eyeSample.LeftEye.EyeDirection.X}, {eyeSample.LeftEye.EyeDirection.Y}, {eyeSample.LeftEye.EyeDirection.Z}");
+        //Debug.Log($"[HarmonEyes SDK] Left Eye Gaze: {eyeSample.LeftEye.GazeX}, {eyeSample.LeftEye.GazeY}");
+
+        //Debug.Log($"[HarmonEyes SDK] Eye Open: {eyeSample.LeftEye.EyeOpenness}, {eyeSample.RightEye.EyeOpenness}");
 
         EyeTrackingConfig.Instance.EyeTrackingData.Samples.AddSample(eyeSample);
     }

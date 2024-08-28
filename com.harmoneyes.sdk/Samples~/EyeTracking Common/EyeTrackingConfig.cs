@@ -6,6 +6,7 @@ using HarmonEyesScreen = HarmonEyesSDK.DataModels.EyeTrackerDataModels.Screen;
 public class EyeTrackingConfig : MonoBehaviour {
     public static EyeTrackingConfig Instance;
     public double SessionStartTime;
+    public double SessionTime;
     public EyeTrackingData EyeTrackingData;
     public bool EyeTrackingInitCompleted;
     public EyeTrackingAnalyzer EyeTrackingAnalyzer;
@@ -30,11 +31,24 @@ public class EyeTrackingConfig : MonoBehaviour {
     [Header("Fatigue Alert To High (seconds)")] [Range(1, 60)]
     public int fatigueAlertToHigh;
 
+    [Header("Report Motion Sickness")] public bool reportMotionSickness = true;
+
+    [Header("Motion Sickness Reporting Frequency (seconds)")]
+    [Range(1, 10)]
+    public int motionSicknessReportingFrequency;
+
+    [Header("Motion Sickness Alert To High (seconds)")]
+    [Range(1, 60)]
+    public int motionSicknessAlertToHigh;
+
     private float cogLoadTimer = 0.0f;
     private float fatigueTimer = 0.0f;
+    private float motionSicknessTimer = 0.0f;
     private bool initialized = false;
     public CognitiveLoadData currentCogLoad;
     public FatigueData currentFatigue;
+    public MotionSicknessData currentMotionSickness;
+   
 
     #region Singleton
 
@@ -53,6 +67,7 @@ public class EyeTrackingConfig : MonoBehaviour {
         EyeTrackingAnalyzer = new EyeTrackingAnalyzer();
 
         SessionStartTime = Time.timeAsDouble;
+        SessionTime = SessionStartTime;
 
         EyeTrackingData = new EyeTrackingData();
 
@@ -65,6 +80,7 @@ public class EyeTrackingConfig : MonoBehaviour {
     void Update() {
         cogLoadTimer += Time.deltaTime;
         fatigueTimer += Time.deltaTime;
+        motionSicknessTimer += Time.deltaTime;
 
         if (initialized && Instance.EyeTrackingInitCompleted) {
             if (reportCognitiveLoad && cogLoadTimer > cognitiveLoadReportingFrequency && currentCogLoad != null) {
@@ -73,6 +89,7 @@ public class EyeTrackingConfig : MonoBehaviour {
                 Debug.Log("[HarmonEyes SDK] " + currentCogLoad.TransitionOne.TransitionLowerBound.HumanReadable);
                 Debug.Log("[HarmonEyes SDK] " + currentCogLoad.TransitionOne.TransitionUpperBound.HumanReadable);
 
+                
                 cogLoadTimer -= cognitiveLoadReportingFrequency;
             }
 
@@ -81,6 +98,16 @@ public class EyeTrackingConfig : MonoBehaviour {
                 Debug.Log("[HarmonEyes SDK] " + currentFatigue.TransitionOne.TransitionTime.HumanReadable);
                 Debug.Log("[HarmonEyes SDK] " + currentFatigue.TransitionOne.TransitionLowerBound.HumanReadable);
                 Debug.Log("[HarmonEyes SDK] " + currentFatigue.TransitionOne.TransitionUpperBound.HumanReadable);
+
+                fatigueTimer -= fatigueReportingFrequency;
+            }
+
+            if (reportMotionSickness && motionSicknessTimer > motionSicknessReportingFrequency && currentMotionSickness != null)
+            {
+                Debug.Log("[HarmonEyes SDK] " + "Motion Sickness Level: " + currentMotionSickness.CurrentLevel.Value);
+                Debug.Log("[HarmonEyes SDK] " + currentMotionSickness.TransitionOne.TransitionTime.HumanReadable);
+                Debug.Log("[HarmonEyes SDK] " + currentMotionSickness.TransitionOne.TransitionLowerBound.HumanReadable);
+                Debug.Log("[HarmonEyes SDK] " + currentMotionSickness.TransitionOne.TransitionUpperBound.HumanReadable);
 
                 cogLoadTimer -= cognitiveLoadReportingFrequency;
             }

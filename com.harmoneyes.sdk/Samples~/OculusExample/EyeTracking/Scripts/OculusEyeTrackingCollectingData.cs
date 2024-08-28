@@ -22,8 +22,9 @@ public class OculusEyeTrackingCollectingData : MonoBehaviour
         }
 
         long timeStamp = (long)((Time.timeAsDouble - EyeTrackingConfig.Instance.SessionStartTime));
-
-        var eyeSample = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.CreateSample(timeStamp, LeftEyeTransform, leftEyeClosed, RightEyeTransform, rightEyeClosed, mainCamera);
+        
+        var eyeSample = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.CreateSample(timeStamp, LeftEyeTransform,
+            leftEyeClosed, RightEyeTransform, rightEyeClosed, mainCamera);
 
         EyeTrackingConfig.Instance.EyeTrackingData.Samples.AddSample(eyeSample);
     }

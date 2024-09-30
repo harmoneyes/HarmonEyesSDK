@@ -75,6 +75,10 @@ public class EyeTrackingConfig : MonoBehaviour {
 
         EyeTrackingAnalyzer.Initialize(screen, DeviceType, LicenseKey);
         EyeTrackingInitCompleted = true;
+
+        cognitiveLoadReportingFrequency = 1;
+        fatigueReportingFrequency = 1;
+        motionSicknessReportingFrequency = 1;
     }
 
     void Update() {
@@ -84,13 +88,12 @@ public class EyeTrackingConfig : MonoBehaviour {
 
         if (initialized && Instance.EyeTrackingInitCompleted) {
             if (reportCognitiveLoad && cogLoadTimer > cognitiveLoadReportingFrequency && currentCogLoad != null) {
-                Debug.Log("[HarmonEyes SDK] " + " Cog Load Level: " + currentCogLoad.CurrentLevel.Value);
+                Debug.Log("[HarmonEyes SDK] " + "Cog Load Level: " + currentCogLoad.CurrentLevel.Value);
                 Debug.Log("[HarmonEyes SDK] " + currentCogLoad.TransitionOne.TransitionTime.HumanReadable);
                 Debug.Log("[HarmonEyes SDK] " + currentCogLoad.TransitionOne.TransitionLowerBound.HumanReadable);
                 Debug.Log("[HarmonEyes SDK] " + currentCogLoad.TransitionOne.TransitionUpperBound.HumanReadable);
-
                 
-                cogLoadTimer -= cognitiveLoadReportingFrequency;
+                cogLoadTimer = 0;
             }
 
             if (reportFatigue && fatigueTimer > fatigueReportingFrequency && currentFatigue != null) {
@@ -99,7 +102,7 @@ public class EyeTrackingConfig : MonoBehaviour {
                 Debug.Log("[HarmonEyes SDK] " + currentFatigue.TransitionOne.TransitionLowerBound.HumanReadable);
                 Debug.Log("[HarmonEyes SDK] " + currentFatigue.TransitionOne.TransitionUpperBound.HumanReadable);
 
-                fatigueTimer -= fatigueReportingFrequency;
+                fatigueTimer = 0;
             }
 
             if (reportMotionSickness && motionSicknessTimer > motionSicknessReportingFrequency && currentMotionSickness != null)
@@ -109,7 +112,7 @@ public class EyeTrackingConfig : MonoBehaviour {
                 Debug.Log("[HarmonEyes SDK] " + currentMotionSickness.TransitionOne.TransitionLowerBound.HumanReadable);
                 Debug.Log("[HarmonEyes SDK] " + currentMotionSickness.TransitionOne.TransitionUpperBound.HumanReadable);
 
-                cogLoadTimer -= cognitiveLoadReportingFrequency;
+                motionSicknessTimer = 0;
             }
         }
     }

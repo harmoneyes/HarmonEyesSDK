@@ -9,7 +9,8 @@ public class AnalyzeEyeTrackingData : MonoBehaviour
     private double lastSent;
     private CognitiveLoadData currCogLoad;
     private FatigueData currFatigue;
-    
+    private MotionSicknessData currMotionSickness;
+
     [SerializeField]
     private TextMeshPro EyeTrackingResponseText;
 
@@ -36,15 +37,14 @@ public class AnalyzeEyeTrackingData : MonoBehaviour
         {
             currCogLoad = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.GetCurrentCogLoad(EyeTrackingConfig.Instance.EyeTrackingData);
             currFatigue = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.GetCurrentFatigue(EyeTrackingConfig.Instance.EyeTrackingData);
+            currMotionSickness = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.GetCurrentMotionSickness(EyeTrackingConfig.Instance.EyeTrackingData);
 
-        currCogLoad = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.GetCurrentCogLoad(EyeTrackingConfig.Instance.EyeTrackingData);
-        currFatigue = EyeTrackingConfig.Instance.EyeTrackingAnalyzer.GetCurrentFatigue(EyeTrackingConfig.Instance.EyeTrackingData);
+            EyeTrackingConfig.Instance.currentCogLoad = currCogLoad;
+            EyeTrackingConfig.Instance.currentFatigue = currFatigue;
+            EyeTrackingConfig.Instance.currentMotionSickness = currMotionSickness;
 
-        EyeTrackingConfig.Instance.currentCogLoad = currCogLoad;
-        EyeTrackingConfig.Instance.currentFatigue = currFatigue;
-
-        //Used for displaying input & response info
-        StartCoroutine(DisplayEyeTrackingResponse());
+            //Used for displaying input & response info
+            StartCoroutine(DisplayEyeTrackingResponse());
 
             // Clear Eye Tracking Data
             EyeTrackingConfig.Instance.EyeTrackingData.ClearData();
@@ -53,9 +53,9 @@ public class AnalyzeEyeTrackingData : MonoBehaviour
 
     IEnumerator DisplayEyeTrackingResponse()
     {
-        EyeTrackingResponseText.text = "Current Cog Load Level: " + currCogLoad.CurrentLevel.Value + "\n "+ currCogLoad.TransitionOne.TransitionTime.HumanReadable
-                                        + "\n " + currCogLoad.TransitionOne.TransitionLowerBound.HumanReadable
-                                        + "\n " + currCogLoad.TransitionOne.TransitionUpperBound.HumanReadable;
+        EyeTrackingResponseText.text = "Current Fatigue Level: " + currFatigue.CurrentLevel.Value + "\n "+ currFatigue.TransitionOne.TransitionTime.HumanReadable
+                                        + "\n " + currFatigue.TransitionOne.TransitionLowerBound.HumanReadable
+                                        + "\n " + currFatigue.TransitionOne.TransitionUpperBound.HumanReadable;
         
         // Wait for 0.1 seconds
         yield return new WaitForSeconds(0.1f);

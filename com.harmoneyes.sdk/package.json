@@ -1,0 +1,44 @@
+{
+    "name": "com.harmoneyes.sdk",
+    "displayName": "HarmonEyes SDK",
+    "version": "3.4.0",
+    "unity": "2022.3",
+    "description": "HarmonEyes SDK",
+    "keywords": [
+        "harmoneyes",
+        "sdk"
+    ],
+    "dependencies": {
+        "com.unity.textmeshpro": "3.0.6",
+        "com.unity.nuget.newtonsoft-json": "3.2.1",
+        "com.unity.xr.oculus": "4.0.0",
+        "com.meta.xr.sdk.interaction": "60.0.0",
+        "com.meta.xr.sdk.core": "60.0.0",
+        "com.meta.xr.sdk.interaction.ovr": "60.0.0"
+    },
+    "author": {
+        "name": "HarmonEyes"
+    },
+    "samples": [
+        {
+            "displayName": "EyeTracking Common",
+            "description": "Common eye tracking scripts to interact with the HarmonEyes SDK",
+            "path": "Samples~/EyeTracking Common"
+        },
+        {
+            "displayName": "Oculus Sample",
+            "description": "A simple oculus sample scene where you can highlight cubes by looking at them and see the eye tracking response",
+            "path": "Samples~/OculusExample"
+        },
+        {
+            "displayName": "HTC VIVE Sample",
+            "description": "A simple htc vive sample scene where you can test the HarmonEyes SDK",
+            "path": "Samples~/HTCViveExample"
+        },
+        {
+            "displayName": "Varjo Sample (Experimental)",
+            "description": "A simple varjo sample scene where you can test the HarmonEyes SDK",
+            "path": "Samples~/VarjoExample"
+        }
+    ]
+}

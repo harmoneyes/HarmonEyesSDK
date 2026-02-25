@@ -1,7 +1,7 @@
 {
     "name": "com.harmoneyes.sdk.samples.oculus",
     "displayName": "Theia SDK - Oculus Sample (2022.3 LTS)",
-    "version": "3.4.1",
+    "version": "3.5.0",
     "unity": "2022.3",
     "description": "Sample scene for Oculus/Meta Quest demonstrating eye tracking with the Theia SDK. Includes interactive cubes that highlight when gazed at.",
     "keywords": [
@@ -13,7 +13,7 @@
         "sample"
     ],
     "dependencies": {
-        "com.harmoneyes.sdk": "3.4.0",
+        "com.harmoneyes.sdk": "3.5.0",
         "com.unity.textmeshpro": "3.0.6",
         "com.unity.xr.oculus": "4.0.0",
         "com.meta.xr.sdk.core": "60.0.0",

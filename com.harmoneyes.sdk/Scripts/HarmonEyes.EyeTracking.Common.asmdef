@@ -1,0 +1,20 @@
+{
+    "name": "HarmonEyes.EyeTracking.Common",
+    "rootNamespace": "HarmonEyes.EyeTracking.Common",
+    "references": [
+        "Unity.TextMeshPro",
+        "Unity.Newtonsoft.Json"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "HarmonEyesSDK.dll",
+        "Newtonsoft.Json.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

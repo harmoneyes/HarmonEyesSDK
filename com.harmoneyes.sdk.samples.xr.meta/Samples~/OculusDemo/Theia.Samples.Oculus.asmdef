@@ -1,0 +1,19 @@
+{
+    "name": "Theia.Samples.Oculus",
+    "rootNamespace": "Theia.Samples.Oculus",
+    "references": [
+        "Oculus.VR",
+        "HarmonEyes.EyeTracking"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "HarmonEyesSDK.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

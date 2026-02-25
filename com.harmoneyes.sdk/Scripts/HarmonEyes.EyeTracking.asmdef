@@ -1,6 +1,6 @@
 {
-    "name": "HarmonEyes.EyeTracking.Common",
-    "rootNamespace": "HarmonEyes.EyeTracking.Common",
+    "name": "HarmonEyes.EyeTracking",
+    "rootNamespace": "HarmonEyes.EyeTracking",
     "references": [
         "Unity.TextMeshPro",
         "Unity.Newtonsoft.Json"

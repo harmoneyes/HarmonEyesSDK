@@ -130,6 +130,14 @@ Install via Package Manager (Unity Registry):
 
 ### Meta XR Sample Dependencies
 
+- Set you your Unity Project for the Vive Focus Vision with the manufacturer instructions here:
+https://developer.vive.com/resources/openxr/unity/tutorials/setup-and-installation/getting-started-with-openxr/
+
+- For full eye tracking, you'll need to enable the eye and face tracking components in Projects Settings:
+  In Unity, click Edit > Project Settings > XR Plug-in Management > OpenXR > and check the boxes for VIVE XR Eye Tracking (Beta) and Facial Tracking
+
+### Meta XR Sample Dependencies
+
 - OpenXR Plugin — 1.14.3 or newer (Unity Registry)
   https://docs.unity3d.com/Packages/com.unity.xr.openxr@latest/
 

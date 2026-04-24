@@ -125,6 +125,9 @@ Install via Package Manager (Unity Registry):
 - OpenXR Plugin — 1.14.3 or newer (Unity Registry)
   https://docs.unity3d.com/Packages/com.unity.xr.openxr@latest/
 
+- VIVE OpenXR Plugin for Unity (installed via VIVE's setup guide)
+  https://github.com/ViveSoftware/VIVE-OpenXR-Unity
+
 - Set up your Unity project for the VIVE Focus Vision using the manufacturer instructions here:
 https://developer.vive.com/resources/openxr/unity/tutorials/setup-and-installation/getting-started-with-openxr/
 

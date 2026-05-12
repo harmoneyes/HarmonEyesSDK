@@ -1,151 +1,134 @@
-# HarmonEyes SDK
+# HarmonEyes Unity SDK — Overview & Getting Started
 
-## Analysis Outputs
+## Overview
 
-The SDK provides two real-time metrics, updated each second:
+Find instructions here on installing the unity sdk: [Unity SDK Install](https://harmoneyes.com/developers/unity-sdk/unity-sdk-install/).
 
-- Cognitive Load — mental demand and processing effort during a task
-- Drowsiness / Sleepiness — alertness level, with an estimate of minutes until transitioning to the next state
+The HarmonEyes Unity SDK turns raw eye-tracking data from a supported headset or webcam into four real-time cognitive-state metrics: **Mental Workload**, **Fatigue**, **Attention**, and **Mental Readiness**. The SDK is delivered as a Unity package that ships a native theia library, a C# wrapper, three platform sample scenes (Meta Quest Pro, HTC Vive Focus Vision, and a headset-free Mock playback), and editor scripts for inspector ergonomics.
 
-## Applications
+## What it produces
 
-- Reading performance — real-time line-by-line tracking, comprehension improvement, detecting reading issues
-- Clinical diagnostics — screening for Parkinson's, TBI, Lyme disease, MCI, MS via eye movement biomarkers
-- Visual search / driving — monitoring attention, decision-making, situational awareness
-- Biometric ID — eye movements as real-time user authentication
-- Developer testing — user testing during app development
-- Market research — interface usability and user behavior insights
+| Metric | Levels | Cadence | Key payload fields |
+|---|---|---|---|
+| Mental Workload | Low / Moderate / High | per native batch (~1 s) | `level`, `confidence`, `batch_number` |
+| Fatigue | Alert / Neither / RatherDrowsy / Drowsy | per native batch (~1 s) | `level`, `confidence`, `batch_number` |
+| Attention | Narrow / Mod-Narrow / Neither / Mod-Broad / Broad | continuous, advances with fixation/saccade observations | `level`, `label`, `composite_score`, `total_observations` |
+| Mental Readiness | low % / moderate % / high % | once minimum session length is met | `low_percentage`, `moderate_percentage`, `high_percentage`, `total_predictions` |
 
-## Getting a License
+See the [API Reference](https://harmoneyes.com/developers/unity-sdk/documentation/api-reference/) for the per-field type and range.
 
-A license key is required to use the HarmonEyes SDK. Contact sales@harmoneyes.com to obtain one.
+## Real-world use cases
 
-## Quick Start
+- **Reading performance** — line-by-line attention tracking, comprehension monitoring, detecting reading-difficulty patterns.
+- **Clinical diagnostics** — screening for Parkinson's, TBI, Lyme disease, MCI, MS via eye-movement biomarkers.
+- **Visual search and driving** — monitoring attention, decision-making, situational awareness.
+- **Biometric ID** — eye-movement signatures for real-time user authentication.
+- **Developer testing** — user testing during app development.
+- **Market research** — interface usability and user-behavior insight.
 
-1. Add `EyeTrackingConfig` and `AnalyzeEyeTrackingData` components to a GameObject in your scene.
-2. In the inspector fields in EyeTrackingConfig, enter your license key.
+## Supported hardware
 
-The SDK validates your license key on startup. If the key is missing or invalid, initialization stops and an error is logged to the console. Check `LicenseKeyValidated` and `LicenseKeyError` at runtime to confirm status in your own code:
+| Tracker | Native preset | Sample scene |
+|---|---|---|
+| Meta Quest Pro | Quest (72 Hz) | [Meta Quest Pro Sample](https://harmoneyes.com/developers/unity-sdk/meta-quest-pro-sample/) |
+| HTC Vive Focus Vision | Quest preset (closest available match) | [HTC Vive Focus Vision Sample](https://harmoneyes.com/developers/unity-sdk/htc-vive-focus-sample/) |
+| Pupil Labs Neon | PupilLabs (200 Hz) | Mock Tracker Sample (CSV playback) |
+| Webcam-based desktop trackers | Webcam (30 Hz) | — |
+| Ganzin | Ganzin (60 Hz) | — |
+
+*To set up any eye tracker not listed, select the nearest lower Hz preset from this list.*
+
+## Get a license key
+
+A license key is required. Contact [sales@harmoneyes.com](mailto:sales@harmoneyes.com) to obtain one. The same key is entered on the `AnalyzeEyeTrackingData` component in each sample scene.
+
+## Three ways to use the SDK
+
+Pick whichever matches your situation.
+
+| Path | When to use | See |
+|---|---|---|
+| Headset sample | You have a Meta Quest Pro or Vive Focus Vision and want a working scene out of the box. | [Meta Quest Pro Sample](https://harmoneyes.com/developers/unity-sdk/meta-quest-pro-sample/) / [HTC Vive Focus Vision Sample](https://harmoneyes.com/developers/unity-sdk/htc-vive-focus-sample/) |
+| Headset-free Mock playback | You don't have a headset, or you want to test against a recorded CSV. | [Unity SDK Install](https://harmoneyes.com/developers/unity-sdk/unity-sdk-install/) → Mock Tracker section |
+| Write a gaze data collection and submission script for your tracker | Your platform isn't covered by the bundled samples or has a more complex setup. | Manual Integration Overview (below) / [API Reference](https://harmoneyes.com/developers/unity-sdk/documentation/api-reference/) |
+
+## Manual Integration Overview
+
+A custom integration is three steps.
+
+### 1. Initialise
+
+- Add the `AnalyzeEyeTrackingData` component to a GameObject in your scene.
+- Enter the License Key on the component inspector.
+- Pick the Tracker preset that matches your hardware (or the closest sample-rate match, rounding down).
+
+The component handles native SDK creation, license validation, and session start automatically on `Start`. Read `AnalyzeEyeTrackingData.Instance.EyeTrackingInitCompleted` to know when initialisation has completed.
+
+### 2. Capture — submit one sample per tracker frame
+
+Write a collector MonoBehaviour that reads your platform's eye data, builds a `Sample` via the factory, and submits it.
 
 ```csharp
-if (EyeTrackingConfig.Instance.LicenseKeyValidated) ...
-if (EyeTrackingConfig.Instance.LicenseKeyError) ...
+using UnityEngine;
+using HarmonEyes.EyeTracking.Common;
+
+public class MyCollector : MonoBehaviour
+{
+    [SerializeField] private Camera headCamera;
+
+    void FixedUpdate()
+    {
+        var analyze = AnalyzeEyeTrackingData.Instance;
+        if (analyze == null || !analyze.EyeTrackingInitCompleted) return;
+
+        long timestampNs = (long)(Time.timeAsDouble * 1e9);
+
+        // Pull per-eye origin, orientation, and a blink decision
+        // from your platform's API.
+        Vector3    leftEyeOrigin       = /* head-local metres */ Vector3.zero;
+        Quaternion leftEyeOrientation  = /* gaze rotation */ Quaternion.identity;
+        Vector3    rightEyeOrigin      = Vector3.zero;
+        Quaternion rightEyeOrientation = Quaternion.identity;
+        bool       isBlinking          = /* your platform's blink criterion */ false;
+
+        Sample s = GazeDataSampleFactory.CreateGazeSample(
+            analyze.SessionId, timestampNs,
+            leftEyeOrigin,  leftEyeOrientation,
+            rightEyeOrigin, rightEyeOrientation,
+            headCamera.fieldOfView,
+            isBlinking);
+
+        analyze.SubmitGazeSample(s);
+    }
+}
 ```
 
-## Submitting Eye Tracking Data
+### 3. Process — read results
 
-To integrate the HarmonEyes SDK, your will collect eye data from your eye tracking enabled hardware and submit samples. Samples can be submitted each frame or based on the sample rate of your hardware. Each sample requires a Transform for each eye (gaze origin and direction), a float for each eye's openness (0.0 = open, 1.0 = closed), and a reference to a camera tied to the user’s ‘center eye’ position (typically center eye camera object exists in XR rigs). 
+Two access patterns. Pick whichever fits your code.
 
+**Polling** — read the latest payload on demand:
 
-	void Update()
-	{
-		if (!EyeTrackingConfig.Instance.LicenseKeyValidated)
-			return;
+```csharp
+var mw = analyze.EyeTrackingAnalyzer.CurrentMentalWorkload;
+if (mw != null) Debug.Log($"MW: {mw.LevelName} (conf {mw.confidence:F2})");
+```
 
-		// Create a nanosecond timestamp relative to session start
-		long timestampNs = (long)((Time.timeAsDouble - EyeTrackingConfig.Instance.SessionStartTime) * 1e9);
+**Event-driven** — subscribe once, react to each new prediction:
 
-		// Build a sample from your platform's eye tracking data
-		Sample eyeSample = GazeDataFormatter.BuildSampleFromEyeTransforms(
-			timestampNs,
-			leftEyeTransform,   // Transform — left eye gaze origin and direction
-			leftEyeClosed,       // float — 0.0 open, 1.0 closed
-			rightEyeTransform,  // Transform — right eye gaze origin and direction
-			rightEyeClosed,      // float — 0.0 open, 1.0 closed
-			centerEyeCamera           // Camera — the player's primary camera (e.g. center eye camera in VR)
-		);
+```csharp
+analyze.EyeTrackingAnalyzer.OnMentalWorkloadResult += mw =>
+    Debug.Log($"MW: {mw.LevelName} (conf {mw.confidence:F2})");
+```
 
-		// Submit the sample to the SDK
-		EyeTrackingConfig.Instance.EyeTrackingData.Samples.AddSample(eyeSample);
-	}
+The four result properties and matching events are listed in the [API Reference](https://harmoneyes.com/developers/unity-sdk/documentation/api-reference/).
 
+## Where to go next
 
-The `AnalyzeEyeTrackingData` component automatically processes accumulated samples each second and stores the results on `EyeTrackingConfig.Instance`.
-
-## Accessing Results
-
-Results are available from any script via the `EyeTrackingConfig` singleton, as long as both `EyeTrackingConfig` and `AnalyzeEyeTrackingData` components are in the scene:
-
-	EyeTrackingConfig.Instance.currentCogLoad     // CognitiveLoadData, nullable
-	EyeTrackingConfig.Instance.currentSleepiness  // SleepinessData,    nullable
-
-
-Each payload is a flat data object. Both fields start `null` and populate only when the native SDK emits its first prediction for that metric — null-check before use. The `batch_number` field increases monotonically per completed analysis window; consumers can edge-trigger UI updates when it advances.
-
-
-	// Cognitive load — CognitiveLoadData
-	.level         // int    — 0 = Low, 1 = Moderate, 2 = High
-	.confidence    // float  — 0..1
-	.prob_high     // float  — probability the user is in the High state
-	.batch_number  // int    — window index
-	.LevelName     // string — "Low" | "Moderate" | "High"
-
-	// Drowsiness / sleepiness — SleepinessData
-	.level         // int    — 0 = Alert, 1 = Neither, 2 = RatherDrowsy, 3 = Drowsy
-	.confidence    // float  — 0..1
-	.batch_number  // int    — window index
-	.ttt_level     // int    — transition-target level (same enum as .level)
-	.ttt_minutes   // int    — estimated minutes until transitioning to ttt_level
-	.LevelName     // string — "Alert" | "Neither" | "RatherDrowsy" | "Drowsy"
-
-
-## Meta Quest Sample
-
-A ready-to-use Meta Quest sample is included as a .unitypackage. Double-click MetaXRSample.unitypackage in the Samples folder to open the Import dialog, then click Import. Open HarmonEyesDemoOculusScene and enter your license key on the EyeTrackingDataOculusAnalyzer prefab. Headset type is preconfigured (Quest Pro).
-
-See `MetaXRSampleInstructions.md` in the Samples folder for full details, including:
-
-- Required dependencies
-- Step-by-step setup instructions
-- How to verify eye tracking and SDK output are working correctly
-
-## VIVE Focus Vision Sample
-
-A ready-to-use VIVE Focus Vision sample is included as a .unitypackage. Double-click ViveSample.unitypackage in the Samples folder to open the Import dialog, then click Import. Open HarmonEyesDemoViveScene and enter your license key on the EyeTrackingDataViveAnalyzer prefab. Headset type is preconfigured (VIVE Focus Vision).
-
-See `ViveFocusVisionSampleInstructions.md` in the Samples folder for full details, including:
-
-- Required dependencies
-- Step-by-step setup instructions (including enabling `VIVE XR Eye Tracking (Beta)` and `Facial Tracking` under OpenXR project settings)
-- How to verify eye tracking and SDK output are working correctly
-
-## Requirements
-
-Minimum Unity version: 2022.3 LTS or newer
-
-### Core SDK Dependencies
-
-Install via Package Manager (Unity Registry):
-
-- TextMeshPro — 3.0.7 or newer
-  https://docs.unity3d.com/Packages/com.unity.textmeshpro@latest/
-
-### VIVE Focus Vision Sample Dependencies
-
-- OpenXR Plugin — 1.14.3 or newer (Unity Registry)
-  https://docs.unity3d.com/Packages/com.unity.xr.openxr@latest/
-
-- VIVE OpenXR Plugin for Unity (installed via VIVE's setup guide)
-  https://github.com/ViveSoftware/VIVE-OpenXR-Unity
-
-- Set up your Unity project for the VIVE Focus Vision using the manufacturer instructions here:
-https://developer.vive.com/resources/openxr/unity/tutorials/setup-and-installation/getting-started-with-openxr/
-
-- For full eye tracking, you'll need to enable the eye and face tracking components in Project Settings:
-  In Unity, click Edit > Project Settings > XR Plug-in Management > OpenXR > and check the boxes for VIVE XR Eye Tracking (Beta) and Facial Tracking
-
-### Meta XR Sample Dependencies
-
-- OpenXR Plugin — 1.14.3 or newer (Unity Registry)
-  https://docs.unity3d.com/Packages/com.unity.xr.openxr@latest/
-
-- Meta XR Core SDK — 85.0.0 or newer
-  https://assetstore.unity.com/packages/tools/integration/meta-xr-core-sdk-269169
-
-- Meta XR Interaction OVR — 85.0.0 or newer
-  https://assetstore.unity.com/packages/tools/integration/meta-xr-interaction-sdk-265014
-
-## Third-Party Licenses
-
-This package includes Microsoft ONNX Runtime (MIT License).
-See Third-Party Notices.txt included in the package for full details.
+| Goal | Link |
+|---|---|
+| Install the SDK and run the headset-free Mock sample | [Unity SDK Install](https://harmoneyes.com/developers/unity-sdk/unity-sdk-install/) |
+| Run the Meta Quest Pro sample | [Meta Quest Pro Sample](https://harmoneyes.com/developers/unity-sdk/meta-quest-pro-sample/) |
+| Run the Vive Focus Vision sample | [HTC Vive Focus Vision Sample](https://harmoneyes.com/developers/unity-sdk/htc-vive-focus-sample/) |
+| Full public-API reference (components, factory, results, events, native wrappers) | [API Reference](https://harmoneyes.com/developers/unity-sdk/documentation/api-reference/) |
+| Watch the Unity SDK demo video | [Unity SDK Demo Video](https://harmoneyes.com/developers/unity-sdk/unity-sdk-demo-video/) |
